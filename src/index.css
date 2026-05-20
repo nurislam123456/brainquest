@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #F7F7F7;
+    color: #3C3C3C;
+  }
+}
+
+@layer components {
+  /* Duolingo-style button with bottom shadow */
+  .btn-duo {
+    @apply relative font-bold rounded-2xl px-6 py-3 transition-all duration-100 active:translate-y-1 active:shadow-none cursor-pointer select-none;
+  }
+
+  .btn-duo:active {
+    box-shadow: none !important;
+  }
+
+  .btn-primary {
+    @apply btn-duo bg-duo-green text-white;
+    box-shadow: 0 4px 0 #46a302;
+  }
+
+  .btn-primary:hover {
+    @apply bg-duo-green-light;
+  }
+
+  .btn-secondary {
+    @apply btn-duo bg-white text-duo-blue border-2 border-duo-blue;
+    box-shadow: 0 4px 0 #1899D6;
+  }
+
+  .btn-danger {
+    @apply btn-duo bg-duo-red text-white;
+    box-shadow: 0 4px 0 #CC0000;
+  }
+
+  .btn-ghost {
+    @apply btn-duo bg-white text-duo-gray-1 border-2 border-duo-border;
+    box-shadow: 0 4px 0 #AFAFAF;
+  }
+
+  /* Level selector pill */
+  .level-pill {
+    @apply flex items-center justify-center w-12 h-12 rounded-full font-extrabold text-lg transition-all duration-150 cursor-pointer border-2 border-b-4;
+  }
+
+  .level-pill-active {
+    @apply bg-duo-green text-white border-duo-green-dark;
+  }
+
+  .level-pill-inactive {
+    @apply bg-white text-duo-gray-1 border-duo-border hover:border-duo-green hover:text-duo-green;
+  }
+
+  /* Card */
+  .duo-card {
+    @apply bg-white rounded-3xl border-2 border-duo-border p-6;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+  }
+
+  /* Input */
+  .duo-input {
+    @apply w-full rounded-2xl border-2 border-duo-border px-4 py-3 text-lg font-bold text-duo-dark focus:outline-none focus:border-duo-blue transition-colors;
+  }
+
+  .duo-input:focus {
+    box-shadow: 0 0 0 3px rgba(28,176,246,0.2);
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    @apply h-4 rounded-full bg-duo-gray-2 overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-duo-green rounded-full transition-all duration-500;
+  }
+
+  /* Heart */
+  .heart {
+    @apply text-duo-red text-2xl transition-all duration-300;
+  }
+
+  .heart-lost {
+    @apply text-duo-gray-2;
+  }
+}
