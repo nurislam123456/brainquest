@@ -52,7 +52,7 @@ export const api = {
     const level = levelMap[difficulty] || "easy";
     const exclude = excludeId ? `&exclude=${excludeId}` : "";
     const res = await fetch(
-      `${BASE_URL}/questions/random?difficulty=${level}${exclude}`,
+      `${BASE_URL}/questions/random?difficulty=${level}&exclude=${excludeId || 0}`,
       {
         headers: getHeaders(),
       },
