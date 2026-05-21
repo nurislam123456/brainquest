@@ -114,6 +114,7 @@ export default function GamePage() {
         setStreak((s) => s + 1);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1300);
+        setExplanation(question.explanation);
       } else {
         setResult("wrong");
         setStreak(0);
