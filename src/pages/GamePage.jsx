@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { api } from '../utils/api';
-import Navbar from '../components/Navbar';
-import LevelSelector from '../components/LevelSelector';
-import QuestionCard from '../components/QuestionCard';
-import ResultBanner from '../components/ResultBanner';
-import Confetti from '../components/Confetti';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { api } from "../utils/api";
+import Navbar from "../components/Navbar";
+import LevelSelector from "../components/LevelSelector";
+import QuestionCard from "../components/QuestionCard";
+import ResultBanner from "../components/ResultBanner";
+import Confetti from "../components/Confetti";
 
 const STORAGE_KEYS = {
-  score: 'bq_score',
-  streak: 'bq_streak',
-  level: 'bq_level',
+  score: "bq_score",
+  streak: "bq_streak",
+  level: "bq_level",
 };
 
 function loadInt(key, fallback) {
@@ -27,32 +27,41 @@ export default function GamePage() {
   const [streak, setStreak] = useState(() => loadInt(STORAGE_KEYS.streak, 0));
 
   const [question, setQuestion] = useState(null);
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState("");
   const [result, setResult] = useState(null); // null | 'correct' | 'wrong'
-  const [explanation, setExplanation] = useState('');
+  const [explanation, setExplanation] = useState("");
 
   const [qLoading, setQLoading] = useState(false);
   const [checkLoading, setCheckLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
   const [confetti, setConfetti] = useState(false);
 
   const inputRef = useRef(null);
 
   // Persist to localStorage
-  useEffect(() => { localStorage.setItem(STORAGE_KEYS.score, score); }, [score]);
-  useEffect(() => { localStorage.setItem(STORAGE_KEYS.streak, streak); }, [streak]);
-  useEffect(() => { localStorage.setItem(STORAGE_KEYS.level, level); }, [level]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.score, score);
+  }, [score]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.streak, streak);
+  }, [streak]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.level, level);
+  }, [level]);
 
-  const loadQuestion = useCallback(async (lvl) => {
+  const loadQuestion = useCallback(async (lvl, excludeId = null) => {
     setQLoading(true);
-    setError('');
+    setError("");
     setResult(null);
-    setAnswer('');
+    setAnswer("");
     setQuestion(null);
     try {
-      const q = await api.getRandomQuestion(lvl);
-      if (!q || !q.id) throw new Error('Задача не найдена. Убедись что в БД есть вопросы для этого уровня.');
+      const q = await api.getRandomQuestion(lvl, excludeId);
+      if (!q || !q.id)
+        throw new Error(
+          "Задача не найдена. Убедись что в БД есть вопросы для этого уровня.",
+        );
       setQuestion(q);
       setTimeout(() => inputRef.current?.focus(), 100);
     } catch (e) {
@@ -83,32 +92,34 @@ export default function GamePage() {
 
     const trimmed = answer.trim();
     if (!trimmed) {
-      setError('Введи число!');
+      setError("Введи число!");
       triggerShake();
       return;
     }
     if (!/^-?\d+(\.\d+)?$/.test(trimmed)) {
-      setError('Напиши ответ числом');
+      setError("Напиши ответ числом");
       triggerShake();
       return;
     }
     if (!question) return;
 
-    setError('');
+    setError("");
     setCheckLoading(true);
 
     try {
       const { correct } = await api.checkAnswer(question.id, trimmed);
       if (correct) {
-        setResult('correct');
-        setScore(s => s + 1);
-        setStreak(s => s + 1);
+        setResult("correct");
+        setScore((s) => s + 1);
+        setStreak((s) => s + 1);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1300);
       } else {
-        setResult('wrong');
+        setResult("wrong");
         setStreak(0);
-        setExplanation(question.explanation || `Правильный ответ: ${question.answer}`);
+        setExplanation(
+          question.explanation || `Правильный ответ: ${question.answer}`,
+        );
         triggerShake();
       }
     } catch (e) {
@@ -119,11 +130,11 @@ export default function GamePage() {
   };
 
   const handleNext = () => {
-    loadQuestion(level);
+    loadQuestion(level, question?.id);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !result && !checkLoading) {
+    if (e.key === "Enter" && !result && !checkLoading) {
       handleCheck();
     }
   };
@@ -135,8 +146,10 @@ export default function GamePage() {
     <div className="min-h-screen bg-duo-gray-3 flex flex-col">
       <Navbar score={score} streak={streak} />
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6" style={{ paddingBottom: result ? '120px' : '24px' }}>
-
+      <main
+        className="flex-1 max-w-2xl mx-auto w-full px-4 py-6"
+        style={{ paddingBottom: result ? "120px" : "24px" }}
+      >
         {/* Level selector */}
         <LevelSelector selected={level} onSelect={handleLevelChange} />
 
@@ -155,7 +168,10 @@ export default function GamePage() {
             <span className="text-5xl mb-3 block">😕</span>
             <p className="font-extrabold text-duo-dark text-lg mb-1">Упс!</p>
             <p className="text-duo-gray-1 font-bold text-sm mb-4">{error}</p>
-            <button onClick={() => loadQuestion(level)} className="btn-primary px-8 py-3 text-sm">
+            <button
+              onClick={() => loadQuestion(level)}
+              className="btn-primary px-8 py-3 text-sm"
+            >
               Попробовать снова
             </button>
           </div>
@@ -178,11 +194,14 @@ export default function GamePage() {
                   type="text"
                   inputMode="decimal"
                   className={`duo-input flex-1 ${
-                    error && answer ? 'border-duo-red focus:border-duo-red' : ''
-                  } ${result === 'correct' ? 'border-duo-green' : ''}`}
+                    error && answer ? "border-duo-red focus:border-duo-red" : ""
+                  } ${result === "correct" ? "border-duo-green" : ""}`}
                   placeholder="Введи число..."
                   value={answer}
-                  onChange={e => { setAnswer(e.target.value); setError(''); }}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    setError("");
+                  }}
                   onKeyDown={handleKeyDown}
                   disabled={!!result || checkLoading}
                   autoComplete="off"
@@ -211,7 +230,9 @@ export default function GamePage() {
                           <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
                           Проверяю...
                         </span>
-                      ) : 'ПРОВЕРИТЬ ✓'}
+                      ) : (
+                        "ПРОВЕРИТЬ ✓"
+                      )}
                     </button>
                     <button
                       onClick={handleNext}
@@ -237,12 +258,16 @@ export default function GamePage() {
             <div className="mt-4 flex gap-3 justify-center">
               <div className="flex items-center gap-1.5 bg-white rounded-2xl border-2 border-duo-border px-4 py-2 shadow-sm">
                 <span className="text-base">⭐</span>
-                <span className="font-extrabold text-duo-green text-sm">{score} очков</span>
+                <span className="font-extrabold text-duo-green text-sm">
+                  {score} очков
+                </span>
               </div>
               {streak >= 2 && (
                 <div className="flex items-center gap-1.5 bg-orange-50 rounded-2xl border-2 border-orange-200 px-4 py-2 animate-bounce-in">
                   <span className="text-base">🔥</span>
-                  <span className="font-extrabold text-duo-orange text-sm">{streak} подряд!</span>
+                  <span className="font-extrabold text-duo-orange text-sm">
+                    {streak} подряд!
+                  </span>
                 </div>
               )}
             </div>
